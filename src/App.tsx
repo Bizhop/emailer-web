@@ -1,3 +1,10 @@
 import React from "react"
+import { Link, Outlet } from "react-router-dom"
 
-export default () => <h1>Hello world!</h1>
+export default () =>
+    <div>
+        <Link to="codes">Codes</Link>
+        <Link to="report">Report</Link>
+        <Link to="request">Request</Link>
+        <Outlet />
+    </div>
