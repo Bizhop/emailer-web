@@ -1,12 +1,17 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { Component, useEffect, useState } from "react"
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, FormLabel, List, ListItem, ListItemText, Paper, Radio, RadioGroup, Stack, TextField } from "@mui/material"
+import { FixedSizeList, ListChildComponentProps } from "react-window"
 
 import { Code } from "./types"
 import { client } from "./api"
+
+
 
 export default () => {
     const [codes, setCodes] = useState<Code[]>([])
     const [used, setUsed] = useState(false)
     const [validityString, setValidityString] = useState("")
+    const [textAreaInput, setTextAreaInput] = useState("")
     const [store, setStore] = useState("PG")
 
     useEffect(() => getCodes(), [used])
@@ -18,12 +23,10 @@ export default () => {
             .catch(console.error)
     }
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault()
-        
+    const upload = () => {
         client.post(
             `/codes/${store.toLowerCase()}`,
-            event.target[0].value,
+            textAreaInput,
             {
                 params: {
                     "valid": validityString
@@ -33,39 +36,57 @@ export default () => {
                 }
             }
         )
-        .then(() => {
-            const textAreaElement = document.getElementById("newCodes") as HTMLTextAreaElement
-            textAreaElement.value = ""
-            setValidityString("")
-            getCodes()
-        })
-        .catch(console.error)
+            .then(() => {
+                setTextAreaInput("")
+                setValidityString("")
+                getCodes()
+            })
+            .catch(console.error)
     }
 
+    const filteredCodes = codes.filter(code => code.used === used)
     return (
-        <div>
+        <Box>
             <h1>Codes</h1>
-            <p>
-                <label>Used</label>
-                <input type="checkbox" checked={used} onChange={toggleUsed} />
-            </p>
-            <ul>
-                {codes.filter(code => code.used === used).map(code => <Item key={code.id} code={code} />)}
-            </ul>
-            <h2>Upload new codes</h2>
-            <label>Validity string</label>
-            <input type="text" value={validityString} onChange={event => setValidityString(event.target.value)} />
-            <h3>Store</h3>
-            <label>PG</label>
-            <input type="radio" name="store" value="PG" defaultChecked onClick={() => setStore("PG")} />
-            <label>NBDG</label>
-            <input type="radio" name="store" value="NBDG" onClick={() => setStore("NBDG")} />
-            <form onSubmit={handleSubmit}>
-                <textarea id="newCodes" name="newCodes" rows={10} cols={50} />
-                <input type="submit" value="Upload" />
-            </form>
-        </div>
+            <Box component={Paper} padding={2} elevation={2}>
+                <FormGroup>
+                    <FormControlLabel control={<Checkbox checked={used} onChange={toggleUsed} />} label="Used" />
+                </FormGroup>
+                <FixedSizeList
+                    height={300}
+                    width="100%"
+                    itemSize={25}
+                    itemCount={filteredCodes.length}
+                    overscanCount={5}
+                    itemData={filteredCodes}
+                >
+                    {renderRow}
+                </FixedSizeList>
+            </Box>
+            <Box component={Paper} padding={2} elevation={2} marginTop={3}>
+                <h2>Upload new codes</h2>
+                <Stack direction="row" spacing={5}>
+                    <Stack direction="column">
+                        <TextField variant="outlined" label="Validity string" value={validityString} onChange={event => setValidityString(event.target.value)} />
+                        <FormGroup sx={{ marginTop: 5 }}>
+                            <FormLabel>Store</FormLabel>
+                            <RadioGroup defaultValue="PG">
+                                <FormControlLabel value="PG" control={<Radio onClick={() => setStore("PG")} />} label="PG" />
+                                <FormControlLabel value="NBDG" control={<Radio onClick={() => setStore("NBDG")} />} label="NBDG" />
+                            </RadioGroup>
+                        </FormGroup>
+                    </Stack>
+                    <TextField variant="outlined" label="New codes" multiline minRows={10} fullWidth value={textAreaInput} onChange={event => setTextAreaInput(event.target.value)} />
+                </Stack>
+                <Button variant="contained" onClick={() => upload()}>Upload</Button>
+            </Box>
+        </Box>
     )
 }
 
-const Item = ({ code }: { code: Code }) => <li>{`${code.store} ${code.code} ${code.valid}`}</li>
+const renderRow = (props: ListChildComponentProps<Code[]>): JSX.Element => {
+    const { data, index, style } = props
+    const code = data[index]
+
+    return <ListItem key={`code-item-${index}`} style={style}><ListItemText primary={`${code.store} ${code.code} ${code.valid}`}></ListItemText></ListItem>
+}

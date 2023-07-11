@@ -15,7 +15,7 @@ export type Report = {
     error?: string
 }
 
-type ReportEmail = {
+export type ReportEmail = {
     to: string,
     store: string,
     code: string,
@@ -27,7 +27,7 @@ export type Response = {
     error: string | null
 }
 
-type ResponseEmail = {
+export type ResponseEmail = {
     from: string,
     to: string,
     subject: string,

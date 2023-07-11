@@ -3,8 +3,10 @@ import DatePicker from "react-datepicker"
 
 import "react-datepicker/dist/react-datepicker.css"
 
-import { Report } from "./types"
+import { Report, ReportEmail } from "./types"
 import { client } from "./api"
+import { Box, Button, List, ListItem, ListItemText, Paper, Stack } from "@mui/material"
+import { FixedSizeList, ListChildComponentProps } from "react-window"
 
 export default () => {
     const [dateFrom, setDateFrom] = useState(getFirstDayOfMonth())
@@ -23,32 +25,54 @@ export default () => {
     }
 
     return (
-        <div>
+        <Box>
             <h1>Report</h1>
-            <div>
-                <DatePicker dateFormat="yyyy-MM-dd" selected={dateFrom} onChange={setDateFrom} />
-                <DatePicker dateFormat="yyyy-MM-dd" selected={dateTo} onChange={setDateTo} />
-            </div>
-            <button onClick={() => getReport()}>Get report</button>
+            <Box marginBottom={2}>
+                <Stack direction="row" spacing={5}>
+                    <Stack direction="row" spacing={1}>
+                        <Box>From</Box>
+                        <DatePicker dateFormat="yyyy-MM-dd" selected={dateFrom} onChange={setDateFrom} />
+                    </Stack>
+                    <Stack direction="row" spacing={1}>
+                        <Box>To</Box>
+                        <DatePicker dateFormat="yyyy-MM-dd" selected={dateTo} onChange={setDateTo} />
+                    </Stack>
+                </Stack>
+            </Box>
+            <Button variant="contained" onClick={() => getReport()}>Get report</Button>
             {report && (
-                <div>
-                    <h2>Codes remaining:</h2>
-                    <ul>
-                        <li>PG: {report.codesRemaining.PG}</li>
-                        <li>NBDG: {report.codesRemaining.NBDG}</li>
-                    </ul>
-                    <h2>Emails</h2>
-                    <ul>
-                        {report.emails.length > 0 && (
-                            <>
-                                {report.emails.map(email => <li>{`${email.sent} ${email.to} ${email.store}`}</li>)}
-                            </>
-                        )}
-                    </ul>
-                </div>
+                <Box>
+                    <Box component={Paper} elevation={2} padding={2} marginTop={2}>
+                        <h2>Codes remaining:</h2>
+                        <List>
+                            <ListItem><ListItemText primary={`PG: ${report.codesRemaining.PG}`} /></ListItem>
+                            <ListItem><ListItemText primary={`NBDG: ${report.codesRemaining.NBDG}`} /></ListItem>
+                        </List>
+                    </Box>
+                    <Box component={Paper} elevation={2} padding={2} marginTop={2}>
+                        <h2>Emails</h2>
+                        <FixedSizeList
+                            height={300}
+                            width="100%"
+                            itemSize={25}
+                            itemCount={report.emails.length}
+                            overscanCount={5}
+                            itemData={report.emails}
+                        >
+                            {renderRow}
+                        </FixedSizeList>
+                    </Box>
+                </Box>
             )}
-        </div>
+        </Box>
     )
+}
+
+const renderRow = (props: ListChildComponentProps<ReportEmail[]>): JSX.Element => {
+    const { data, index, style } = props
+    const email = data[index]
+
+    return <ListItem key={`email-item-${index}`} style={style}><ListItemText primary={`${email.sent} ${email.to} ${email.store}`} /></ListItem>
 }
 
 const simpleDate = (input: Date): string => {
