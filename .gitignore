@@ -25,3 +25,4 @@ pids
 # Optional npm cache directory
 .npm
 
+.env.development
