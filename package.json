@@ -2,6 +2,7 @@
   "name": "emailer-web",
   "source": "src/index.html",
   "scripts": {
+    "local": "NODE_ENV=local parcel",
     "start": "parcel",
     "build": "parcel build"
   },
@@ -18,6 +19,7 @@
     "react-window": "^1.8.9"
   },
   "devDependencies": {
+    "@types/node": "^20.4.1",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/react-window": "^1.8.5",

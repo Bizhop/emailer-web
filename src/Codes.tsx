@@ -1,5 +1,5 @@
-import React, { Component, useEffect, useState } from "react"
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, FormLabel, List, ListItem, ListItemText, Paper, Radio, RadioGroup, Stack, TextField } from "@mui/material"
+import React, { useEffect, useState } from "react"
+import { Box, Button, Checkbox, FormControlLabel, FormGroup, FormLabel, ListItem, ListItemText, Paper, Radio, RadioGroup, Stack, TextField } from "@mui/material"
 import { FixedSizeList, ListChildComponentProps } from "react-window"
 
 import { Code } from "./types"
@@ -25,11 +25,12 @@ export default () => {
 
     const upload = () => {
         client.post(
-            `/codes/${store.toLowerCase()}`,
+            "/codes",
             textAreaInput,
             {
                 params: {
-                    "valid": validityString
+                    "valid": validityString,
+                    "store": store
                 },
                 headers: {
                     "Content-Type": "text/plain"

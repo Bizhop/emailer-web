@@ -1,17 +1,21 @@
 import React, { useState } from "react"
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, Icon, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField } from "@mui/material"
+import { Box, Button, Checkbox, Dialog, DialogTitle, FormControlLabel, FormGroup, Icon, IconButton, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, TextField, Zoom } from "@mui/material"
 import ZoomInIcon from '@mui/icons-material/ZoomIn'
+import CloseIcon from "@mui/icons-material/Close"
 
 import { client } from "./api"
-import { Response } from "./types"
+import { Response, ResponseEmail } from "./types"
 
 
 export default () => {
     const [send, setSend] = useState(false)
     const [responses, setResponses] = useState<Response[]>([])
     const [textAreaInput, setTextAreaInput] = useState("")
+    const [emailModalOpen, setEmailModalOpen] = useState(false)
+    const [email, setEmail] = useState<ResponseEmail | null>(null)
 
     const toggleSend = () => setSend(prevValue => !prevValue)
+    const toggleEmailModal = () => setEmailModalOpen(prevValue => !prevValue)
     const upload = () => {
         client.post(
             "/request",
@@ -31,6 +35,7 @@ export default () => {
 
     return (
         <Box>
+            <EmailModal email={email} isOpen={emailModalOpen} toggleModal={toggleEmailModal} />
             <h1>Request</h1>
             <Stack direction="column" spacing={2}>
                 <Box component={Paper} padding={2} elevation={2}>
@@ -53,7 +58,7 @@ export default () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {responses.map((response, index) => <Item key={`response-${index}`} data={response} />)}
+                                {responses.map((response, index) => <Item key={`response-${index}`} data={response} setEmail={setEmail} toggleEmailModal={toggleEmailModal} />)}
                             </TableBody>
                         </Table>
                     </Box>
@@ -63,14 +68,22 @@ export default () => {
     )
 }
 
-const Item = ({ data }: { data: Response }) => {
+const Item = ({ data, setEmail, toggleEmailModal }: { data: Response, setEmail: (email: ResponseEmail) => void, toggleEmailModal: () => void }): JSX.Element | null => {
     const { error, email } = data
 
     if (email) return (
         <TableRow>
             <TableCell>{email.timestamp}</TableCell>
             <TableCell>{email.to}</TableCell>
-            <TableCell><Icon component={ZoomInIcon}/></TableCell>
+            <TableCell>
+                <IconButton onClick={() => {
+                    console.log("click")
+                    setEmail(email)
+                    toggleEmailModal()
+                }}>
+                    <ZoomInIcon />
+                </IconButton>
+            </TableCell>
         </TableRow>
     )
     else if (error) return (
@@ -79,4 +92,34 @@ const Item = ({ data }: { data: Response }) => {
         </TableRow>
     )
     else return null
+}
+
+const EmailModal = ({ email, toggleModal, isOpen }: { email: ResponseEmail | null, toggleModal: () => void, isOpen: boolean }): JSX.Element | null => {
+    if (!email) return null
+
+    return (
+        <Dialog open={isOpen} onClose={toggleModal} maxWidth="md" fullWidth>
+            <DialogTitle>
+                Email
+                <IconButton
+                    aria-label="close"
+                    onClick={toggleModal}
+                    sx={{
+                        position: "absolute",
+                        right: 8,
+                        top: 8,
+                        color: theme => theme.palette.grey[500],
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </DialogTitle>
+            <Box padding={2}>
+                <h3>{email.to}</h3>
+                <p>{email.timestamp}</p>
+                <h2>{email.subject}</h2>
+                <p style={{ whiteSpace: "pre-line" }}>{email.content}</p>
+            </Box>
+        </Dialog>
+    )
 }

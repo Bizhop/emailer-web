@@ -1,12 +1,13 @@
 import axios from "axios"
 
+const baseURL = process.env.API_URL
+const apiKey = process.env.API_KEY
+
 export const client = axios.create({
-    //baseURL: "https://emailer-rest.fly.dev",
-    baseURL: "http://localhost:8080",
+    baseURL,
     responseType: "json",
     withCredentials: false,
     params: {
-        //"api-key": "yIXhC73RKP4rpj2h5rl9tu7TneljxSBy",
-        "api-key": "test"
+        "api-key": apiKey
     }
 })
