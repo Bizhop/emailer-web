@@ -7,7 +7,7 @@ export const client = axios.create({
     baseURL,
     responseType: "json",
     withCredentials: false,
-    params: {
-        "api-key": apiKey
+    headers: {
+        "Authorization": apiKey
     }
 })

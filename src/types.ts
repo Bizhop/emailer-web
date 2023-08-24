@@ -34,3 +34,14 @@ export type ResponseEmail = {
     timestamp: string | null,
     content: string
 }
+
+export type SheetsRequest = {
+    id: number,
+    timestamp: string | null,
+    name: string,
+    email: string,
+    competitionInfo: string | null,
+    store: string,
+    competitionDate: string,
+    status: string
+}
