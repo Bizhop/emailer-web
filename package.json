@@ -12,6 +12,7 @@
     "@mui/icons-material": "^5.13.7",
     "@mui/material": "^5.13.7",
     "axios": "^1.4.0",
+    "ramda": "^0.29.0",
     "react": "^18.2.0",
     "react-datepicker": "^4.15.0",
     "react-dom": "^18.2.0",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^20.4.1",
+    "@types/ramda": "^0.29.3",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@types/react-window": "^1.8.5",

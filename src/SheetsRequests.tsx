@@ -1,9 +1,16 @@
 import React, { useEffect, useState } from "react"
-import { Box, Button, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, SelectChangeEvent, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, IconButton } from "@mui/material"
+import { Box, Button, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, SelectChangeEvent, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, IconButton, TextField } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
+import { sortBy, prop } from "ramda"
 
 import { client } from "./api"
 import { Response, SheetsRequest } from "./types"
+
+type CompleteParams = {
+    send: boolean,
+    competition?: string,
+    date?: string
+}
 
 export default () => {
     const [requests, setRequests] = useState<SheetsRequest[]>([])
@@ -11,12 +18,24 @@ export default () => {
     const [status, setStatus] = useState("REQUESTED")
     const [previews, setPreviews] = useState<Response[]>([])
     const [previewModalOpen, setPreviewModalOpen] = useState(false)
+    const [infoOpt, setInfoOpt] = useState("")
+    const [dateOpt, setDateOpt] = useState("")
+
+    const infoOptOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setInfoOpt(event.target.value)
+    }
+
+    const dateOptOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDateOpt(event.target.value)
+    }
 
     useEffect(() => getRequests(status), [status])
 
+    const setRequestsSorted = (requests: SheetsRequest[]) => setRequests(sortBy(prop("competitionDate"), requests))
+
     const getNewRequests = () => {
         client.get("/sheetsrequests/new")
-            .then(response => setRequests(response.data))
+            .then(response => setRequestsSorted(response.data))
             .catch(console.error)
     }
 
@@ -24,7 +43,7 @@ export default () => {
         setIds(new Set<number>())
         if (status == "-ALL-") {
             client.get("/sheetsrequests")
-                .then(response => setRequests(response.data))
+                .then(response => setRequestsSorted(response.data))
                 .catch(console.error)
         }
         else {
@@ -33,7 +52,7 @@ export default () => {
                     "status": status
                 }
             })
-                .then(response => setRequests(response.data))
+                .then(response => setRequestsSorted(response.data))
                 .catch(console.error)
         }
     }
@@ -48,18 +67,23 @@ export default () => {
                 }
             }
         )
-            .then(response => setRequests(response.data))
+            .then(response => setRequestsSorted(response.data))
             .catch(console.error)
     }
 
     const complete = (send: boolean) => {
+        var params: CompleteParams = { "send": send }
+        if(infoOpt.length > 0) {
+            params = {...params, "competition": infoOpt}
+        }
+        if(dateOpt.length > 0) {
+            params = {...params, "date": dateOpt}
+        }
         client.post(
             "/sheetsrequests/complete",
             JSON.stringify(Array.from(ids.values())),
             {
-                params: {
-                    "send": send
-                },
+                params,
                 headers: {
                     "Content-Type": "application/json"
                 }
@@ -114,6 +138,18 @@ export default () => {
                     </Select>
                 </FormControl>
                 <Stack direction="row" spacing={2}>
+                    <TextField
+                        id="infoOptField"
+                        label="Competition info (optional)"
+                        value={infoOpt}
+                        onChange={infoOptOnChange}
+                    />
+                    <TextField
+                        id="dateOptField"
+                        label="Competition date (optional)"
+                        value={dateOpt}
+                        onChange={dateOptOnChange}
+                    />
                     <Button variant="contained" onClick={() => complete(false)}>Complete (preview)</Button>
                     <Button variant="contained" color="error" onClick={reject}>Reject</Button>
                 </Stack>
