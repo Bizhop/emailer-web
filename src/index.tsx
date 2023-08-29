@@ -5,7 +5,6 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom"
 import App from "./App"
 import Report from "./Report"
 import Codes from "./Codes"
-import Request from "./Request"
 import SheetsRequests from "./SheetsRequests"
 
 const router = createBrowserRouter([
@@ -20,10 +19,6 @@ const router = createBrowserRouter([
             {
                 path: "report",
                 element: <Report />
-            },
-            {
-                path: "request",
-                element: <Request />
             },
             {
                 path: "sheetsrequests",

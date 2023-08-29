@@ -9,7 +9,6 @@ export default () =>
                 <Stack direction="row" spacing={3} padding={1}>
                     <Link to="codes">CODES</Link>
                     <Link to="report">REPORT</Link>
-                    <Link to="request">REQUEST</Link>
                     <Link to="sheetsrequests">SHEETS REQUESTS</Link>
                 </Stack>
                 <Outlet />

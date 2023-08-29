@@ -5,8 +5,7 @@ import "react-datepicker/dist/react-datepicker.css"
 
 import { Report, ReportEmail } from "./types"
 import { client } from "./api"
-import { Box, Button, List, ListItem, ListItemText, Paper, Stack } from "@mui/material"
-import { FixedSizeList, ListChildComponentProps } from "react-window"
+import { Box, Button, List, ListItem, ListItemText, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
 
 export default () => {
     const [dateFrom, setDateFrom] = useState(getFirstDayOfMonth())
@@ -51,16 +50,21 @@ export default () => {
                     </Box>
                     <Box component={Paper} elevation={2} padding={2} marginTop={2}>
                         <h2>Emails</h2>
-                        <FixedSizeList
-                            height={300}
-                            width="100%"
-                            itemSize={25}
-                            itemCount={report.emails.length}
-                            overscanCount={5}
-                            itemData={report.emails}
-                        >
-                            {renderRow}
-                        </FixedSizeList>
+                        <TableContainer sx={{ maxHeight: 330 }}>
+                            <Table stickyHeader size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Timestamp</TableCell>
+                                        <TableCell>To</TableCell>
+                                        <TableCell>Store</TableCell>
+                                        <TableCell>Code</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {report.emails.map((email, index) => <RenderRow key={`report-row-${index}`} email={email} />)}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
                     </Box>
                 </Box>
             )}
@@ -68,11 +72,15 @@ export default () => {
     )
 }
 
-const renderRow = (props: ListChildComponentProps<ReportEmail[]>): JSX.Element => {
-    const { data, index, style } = props
-    const email = data[index]
-
-    return <ListItem key={`email-item-${index}`} style={style}><ListItemText primary={`${email.sent} ${email.to} ${email.store}`} /></ListItem>
+const RenderRow = ({ email }: { email: ReportEmail }): JSX.Element => {
+    return (
+        <TableRow>
+            <TableCell>{email.sent}</TableCell>
+            <TableCell>{email.to}</TableCell>
+            <TableCell>{email.store}</TableCell>
+            <TableCell>{email.code}</TableCell>
+        </TableRow>
+    )
 }
 
 const simpleDate = (input: Date): string => {
