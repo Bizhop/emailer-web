@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
-import { Box, Button, Checkbox, FormControlLabel, FormGroup, FormLabel, Paper, Radio, RadioGroup, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material"
+import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Checkbox, FormControlLabel, FormGroup, FormLabel, Paper, Radio, RadioGroup, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField } from "@mui/material"
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import { Code } from "./types"
 import { client } from "./api"
@@ -13,6 +14,12 @@ export default () => {
     const [validityString, setValidityString] = useState("")
     const [textAreaInput, setTextAreaInput] = useState("")
     const [store, setStore] = useState("PG")
+    const [panelExpanded, setPanelExpanded] = React.useState<string | false>('panel-codes');
+
+    const handlePanelChange =
+        (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+            setPanelExpanded(newExpanded ? panel : false);
+        }
 
     useEffect(() => getCodes(), [used])
 
@@ -56,47 +63,64 @@ export default () => {
     return (
         <Box>
             <h1>Codes</h1>
-            <Box component={Paper} padding={2} elevation={2}>
-                <FormGroup>
-                    <FormControlLabel control={<Checkbox checked={used} onChange={toggleUsed} />} label="Used" />
-                </FormGroup>
-                <FormGroup>
-                    <FormControlLabel control={<Checkbox checked={selectedStores.includes("PG")} onChange={() => toggleStoreSelector("PG")} />} label="PG" />
-                    <FormControlLabel control={<Checkbox checked={selectedStores.includes("NBDG")} onChange={() => toggleStoreSelector("NBDG")} />} label="NBDG" />
-                </FormGroup>
-                <p>Count: {filteredCodes.length}</p>
-                <TableContainer sx={{ maxHeight: 330 }}>
-                    <Table stickyHeader size="small">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Store</TableCell>
-                                <TableCell>Code</TableCell>
-                                <TableCell>Valid</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {filteredCodes.map((code, index) => <RenderRow key={`code-row-${index}`} code={code} />)}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
-            </Box>
-            <Box component={Paper} padding={2} elevation={2} marginTop={3}>
-                <h2>Upload new codes</h2>
-                <Stack direction="row" spacing={5}>
-                    <Stack direction="column">
-                        <TextField variant="outlined" label="Validity string" value={validityString} onChange={event => setValidityString(event.target.value)} />
-                        <FormGroup sx={{ marginTop: 5 }}>
-                            <FormLabel>Store</FormLabel>
-                            <RadioGroup defaultValue="PG">
-                                <FormControlLabel value="PG" control={<Radio onClick={() => setStore("PG")} />} label="PG" />
-                                <FormControlLabel value="NBDG" control={<Radio onClick={() => setStore("NBDG")} />} label="NBDG" />
-                            </RadioGroup>
+            <Accordion expanded={panelExpanded === 'panel-codes'} onChange={handlePanelChange('panel-codes')}>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                >
+                    <h2>Imported codes</h2>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Box component={Paper} padding={2} elevation={2}>
+                        <FormGroup>
+                            <FormControlLabel control={<Checkbox checked={used} onChange={toggleUsed} />} label="Used" />
                         </FormGroup>
-                    </Stack>
-                    <TextField variant="outlined" label="New codes" multiline minRows={10} fullWidth value={textAreaInput} onChange={event => setTextAreaInput(event.target.value)} />
-                </Stack>
-                <Button variant="contained" onClick={() => upload()}>Upload</Button>
-            </Box>
+                        <FormGroup>
+                            <FormControlLabel control={<Checkbox checked={selectedStores.includes("PG")} onChange={() => toggleStoreSelector("PG")} />} label="PG" />
+                            <FormControlLabel control={<Checkbox checked={selectedStores.includes("NBDG")} onChange={() => toggleStoreSelector("NBDG")} />} label="NBDG" />
+                        </FormGroup>
+                        <p>Count: {filteredCodes.length}</p>
+                        <TableContainer sx={{ maxHeight: 330 }}>
+                            <Table stickyHeader size="small">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Store</TableCell>
+                                        <TableCell>Code</TableCell>
+                                        <TableCell>Valid</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {filteredCodes.map((code, index) => <RenderRow key={`code-row-${index}`} code={code} />)}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    </Box>
+                </AccordionDetails>
+            </Accordion>
+            <Accordion expanded={panelExpanded === 'panel-upload'} onChange={handlePanelChange('panel-upload')}>
+                <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                >
+                    <h2>Upload new codes</h2>
+                </AccordionSummary>
+                <AccordionDetails>
+                    <Box component={Paper} padding={2} elevation={2} marginTop={3}>
+                        <Stack direction="row" spacing={5}>
+                            <Stack direction="column">
+                                <TextField variant="outlined" label="Validity string" value={validityString} onChange={event => setValidityString(event.target.value)} />
+                                <FormGroup sx={{ marginTop: 5 }}>
+                                    <FormLabel>Store</FormLabel>
+                                    <RadioGroup defaultValue="PG">
+                                        <FormControlLabel value="PG" control={<Radio onClick={() => setStore("PG")} />} label="PG" />
+                                        <FormControlLabel value="NBDG" control={<Radio onClick={() => setStore("NBDG")} />} label="NBDG" />
+                                    </RadioGroup>
+                                </FormGroup>
+                            </Stack>
+                            <TextField variant="outlined" label="New codes" multiline minRows={10} fullWidth value={textAreaInput} onChange={event => setTextAreaInput(event.target.value)} />
+                        </Stack>
+                        <Button variant="contained" onClick={() => upload()}>Upload</Button>
+                    </Box>
+                </AccordionDetails>
+            </Accordion>
         </Box>
     )
 }
