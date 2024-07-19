@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Box, Button, Paper, Stack, Table, TableBody, TableCell, TableHead, TableRow, SelectChangeEvent, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, IconButton, TextField } from "@mui/material"
 import CloseIcon from "@mui/icons-material/Close"
-import { sortBy, prop } from "ramda"
 
 import { client } from "./api"
 import { Response, SheetsRequest } from "./types"
@@ -31,7 +30,7 @@ export default () => {
 
     useEffect(() => getRequests(status), [status])
 
-    const setRequestsSorted = (requests: SheetsRequest[]) => setRequests(sortBy(prop("competitionDate"), requests))
+    const setRequestsSorted = (requests: SheetsRequest[]) => setRequests(requests)
 
     const getNewRequests = () => {
         client.get("/sheetsrequests/new")
