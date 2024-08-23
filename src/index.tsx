@@ -6,6 +6,7 @@ import App from "./App"
 import Report from "./Report"
 import Codes from "./Codes"
 import SheetsRequests from "./SheetsRequests"
+import MailTest from "./MailTest"
 
 const router = createBrowserRouter([
     {
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
             {
                 path: "sheetsrequests",
                 element: <SheetsRequests />
+            },
+            {
+                path: "mailtest",
+                element: <MailTest />
             }
         ]
     },
