@@ -6,17 +6,23 @@ import "react-datepicker/dist/react-datepicker.css"
 import { Report, ReportEmail } from "./types"
 import { client } from "./api"
 import { Box, Button, List, ListItem, ListItemText, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material"
+import { useCredentials } from "./CredentialsContext"
 
 export default () => {
     const [dateFrom, setDateFrom] = useState(getFirstDayOfMonth())
     const [dateTo, setDateTo] = useState(getLastDayOfMonth())
     const [report, setReport] = useState<Report | null>(null)
 
+    const { token } = useCredentials()
+
     const getReport = () => {
         client.get("/report", {
             params: {
                 "from": simpleDate(dateFrom),
                 "to": simpleDate(dateTo)
+            },
+            headers: {
+                Authorization: `Bearer ${token}`
             }
         })
             .then(response => setReport(response.data))

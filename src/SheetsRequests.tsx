@@ -4,6 +4,7 @@ import CloseIcon from "@mui/icons-material/Close"
 
 import { client } from "./api"
 import { Response, SheetsRequest } from "./types"
+import { useCredentials } from "./CredentialsContext"
 
 type CompleteParams = {
     send: boolean,
@@ -20,6 +21,8 @@ export default () => {
     const [infoOpt, setInfoOpt] = useState("")
     const [dateOpt, setDateOpt] = useState("")
 
+    const { token } = useCredentials()
+
     const infoOptOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setInfoOpt(event.target.value)
     }
@@ -33,7 +36,7 @@ export default () => {
     const setRequestsSorted = (requests: SheetsRequest[]) => setRequests(requests)
 
     const getNewRequests = () => {
-        client.get("/sheetsrequests/new")
+        client.get("/sheetsrequests/new", { headers: { Authorization: `Bearer ${token}` } })
             .then(response => setRequestsSorted(response.data))
             .catch(console.error)
     }
@@ -41,7 +44,7 @@ export default () => {
     const getRequests = (status: string) => {
         setIds(new Set<number>())
         if (status == "-ALL-") {
-            client.get("/sheetsrequests")
+            client.get("/sheetsrequests", { headers: { Authorization: `Bearer ${token}` } })
                 .then(response => setRequestsSorted(response.data))
                 .catch(console.error)
         }
@@ -49,6 +52,9 @@ export default () => {
             client.get("/sheetsrequests", {
                 params: {
                     "status": status
+                },
+                headers: {
+                    Authorization: `Bearer ${token}`
                 }
             })
                 .then(response => setRequestsSorted(response.data))
@@ -62,7 +68,8 @@ export default () => {
             JSON.stringify(Array.from(ids.values())),
             {
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 }
             }
         )
@@ -84,7 +91,8 @@ export default () => {
             {
                 params,
                 headers: {
-                    "Content-Type": "application/json"
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
                 }
             }
         )

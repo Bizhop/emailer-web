@@ -4,6 +4,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 
 import { Code } from "./types"
 import { client } from "./api"
+import { useCredentials } from "./CredentialsContext"
 
 
 
@@ -16,6 +17,8 @@ export default () => {
     const [store, setStore] = useState("PG")
     const [panelExpanded, setPanelExpanded] = React.useState<string | false>('panel-codes');
 
+    const { token } = useCredentials()
+
     const handlePanelChange =
         (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
             setPanelExpanded(newExpanded ? panel : false);
@@ -25,7 +28,7 @@ export default () => {
 
     const toggleUsed = () => setUsed(prevValue => !prevValue)
     const getCodes = () => {
-        client.get("/codes")
+        client.get("/codes", { headers: { Authorization: `Bearer ${token}` } })
             .then(response => setCodes(response.data))
             .catch(console.error)
     }
@@ -47,7 +50,8 @@ export default () => {
                     "store": store
                 },
                 headers: {
-                    "Content-Type": "text/plain"
+                    "Content-Type": "text/plain",
+                    Authorization: `Bearer ${token}`
                 }
             }
         )
